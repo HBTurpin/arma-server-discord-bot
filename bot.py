@@ -18,7 +18,7 @@ import json
 import a2s
 
 config = dotenv_values(".env")
-TOKEN = "MjU3NTY4MDA4MjM3NDgxOTg1.GX5Pnm.EyLUXyHqAz-17L7Tq5lmTB4WKXu-2pbtMpRVKI"
+TOKEN = config["TOKEN"]
 
 from interactions.ext.get import get
 import interactions
