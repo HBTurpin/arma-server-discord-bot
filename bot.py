@@ -39,7 +39,9 @@ async def setup_message(id, channel_id, display_name, ip, port, server_name="", 
             "display_name" : display_name,
             "server_name" : server_name,
             "ip": ip,
-            "port" : port
+            "port" : port,
+            "mods_required" : mods_required,
+            "mods_clientside" : mods_clientside
         }
         f.seek(0)
         json.dump(jd, f, indent=1)
@@ -58,7 +60,7 @@ async def update_status(id, channel_id, display_name, ip, port, server_name="", 
         #await delete_message(id)
         return
 
-    try: 
+    try:
         info = a2s.info((str(ip), int(port) + 1))
     except Exception:
         info = ""
@@ -82,7 +84,7 @@ async def update_status(id, channel_id, display_name, ip, port, server_name="", 
 
     
     server_info = interactions.Embed(
-        title=online_name or server_name or display_name, 
+        title=f"{(online_name or server_name or display_name)} `{display_name}`",
         description=f"Currently playing `{mission_name}` on `{map_name}`." if info else "This server is currently offline, contact the @Server Admin should this be turned on.",
         color=interactions.Color.green() if info else interactions.Color.red(),
         #footer=interactions.EmbedFooter(text=f"Last Updated: {str(datetime.datetime.now())}"),
@@ -90,15 +92,15 @@ async def update_status(id, channel_id, display_name, ip, port, server_name="", 
         )
 
     #IP:PORT
-    server_info.add_field("IP : PORT", value=f"{ip}:{port}", inline=True)
+    server_info.add_field("IP : PORT", value=f"`{ip}` : `{port}` - steam://connect/{ip}:{int(port) + 1}", inline=True)
 
     #Player Field
     try:
         players = a2s.players((str(ip), int(port) + 1))
     except Exception:
         players = []
-    if info:
-        player_string = "" if players else "-"
+    if info and players:
+        player_string = ""
         for player in players:
             player_string += str(re.findall("(?<=name=').*?(?=',)", str(player))[0]) + "\n"
         server_info.add_field(f"Online Players ({player_count}/{player_count_max})", value=player_string, inline=False)
@@ -175,7 +177,8 @@ async def create_status(ctx: interactions.CommandContext, display_name: str, ip:
     guild = await ctx.get_guild()
     channel = await ctx.get_channel()
     message = await channel.send("Fetching server status....")
-    await setup_message(str(message.id), str(channel.id), display_name, ip, port)
+    await setup_message(str(message.id), str(channel.id), display_name, ip, port, mods_required, mods_clientside)
+    await update_status(str(message.id), str(channel.id), display_name, ip, port, mods_required, mods_clientside)
     
 
 client.start()
