@@ -135,6 +135,7 @@ async def on_ready():
 @client.command(
     name = "status_channel", 
     description = 'Setup a server info channel to be displayed in a specific category of your choosing.',
+    default_member_permissions=interactions.Permissions.ADMINISTRATOR
     options = [
         interactions.Option(
             name="display_name",
